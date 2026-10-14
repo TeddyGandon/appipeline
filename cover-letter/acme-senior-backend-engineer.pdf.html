@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Cover Letter — Teddy Gandon — Acme Corporation</title>
+  <style>
+    @font-face {
+      font-family: 'EB Garamond';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('../resume/fonts/eb-garamond-latin-400-normal.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'EB Garamond';
+      font-style: normal;
+      font-weight: 500;
+      font-display: block;
+      src: url('../resume/fonts/eb-garamond-latin-500-normal.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'EB Garamond';
+      font-style: normal;
+      font-weight: 600;
+      font-display: block;
+      src: url('../resume/fonts/eb-garamond-latin-600-normal.woff2') format('woff2');
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    :root {
+      --ink: #1c1b19;
+      --ink-soft: #4a4740;
+      --ink-muted: #7a766c;
+      --rule: #d9d5cc;
+      --accent: #8a6d3b;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    html {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      background: #e5e5e5;
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+      font-size: 12pt;
+      line-height: 1.48;
+      font-variant-numeric: oldstyle-nums proportional-nums;
+      font-kerning: normal;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-color: var(--accent);
+      text-underline-offset: 0.12em;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 1cm auto;
+      padding: 19mm 21mm;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .sender {
+      padding-bottom: 5mm;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .sender__name {
+      color: var(--ink);
+      font-size: 25pt;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+
+    .sender__details {
+      margin-top: 2mm;
+      color: var(--ink-muted);
+      font-size: 10pt;
+    }
+
+    .recipient {
+      margin-top: 11mm;
+      color: var(--ink-soft);
+      line-height: 1.35;
+    }
+
+    .date {
+      margin-top: 8mm;
+      color: var(--ink-muted);
+    }
+
+    .greeting {
+      margin-top: 8mm;
+    }
+
+    .letter p {
+      margin: 0;
+    }
+
+    .letter p + p {
+      margin-top: 5mm;
+    }
+
+    .signature {
+      margin-top: 7mm;
+    }
+
+    .signature__name {
+      margin-top: 2mm !important;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        min-height: calc(297mm - 1mm);
+        margin: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="sender">
+      <p class="sender__name">Teddy Gandon</p>
+      <p class="sender__details">
+        <a href="mailto:moi@teddygandon.com">moi@teddygandon.com</a>
+        &nbsp;·&nbsp;
+        <a href="https://teddygandon.github.io">teddygandon.github.io</a>
+        &nbsp;·&nbsp;
+        <a href="tel:+33662467028">+33 6 62 46 70 28</a>
+      </p>
+    </header>
+
+    <address class="recipient">
+      Acme Corporation<br />
+      Engineering &amp; Anvil Optimization
+    </address>
+    <p class="date">14 October 2026</p>
+    <p class="greeting">Dear Acme Engineering Team,</p>
+
+    <section class="letter">
+      <p>
+        Acme’s move from a legacy hardware ecosystem to a cloud-native platform caught my attention. The Core Systems role brings order processing, real-time inventory and automated trap-triggering into one reliability problem, with an especially clear constraint: spring-loaded boxing gloves must fire in under 10 milliseconds. That is a far more memorable brief than a generic API modernization, and I like that the work connects software behavior to physical outcomes.
+      </p>
+      <p>
+        At Jellyfish (formerly Tradelab), I spent six years building backend applications for high-volume programmatic bidding. I joined as a Senior Backend Engineer and became Senior Backend Team Lead, leading three backend engineers and owning technical decisions and delivery. Earlier, as CTO at One Heart Communication, I owned architecture and delivery of a custom CRM and coordinated a hybrid team of six developers. Those roles taught me to combine hands-on design with pragmatic decisions about reliability, delivery, and how teams operate.
+      </p>
+      <p>
+        My backend toolkit includes TypeScript and NestJS, PHP/Symfony, PostgreSQL, Redis, RabbitMQ, AWS, GCP, Kubernetes, Docker and Terraform. While I have not worked on ballistics or rocket-skate telemetry, I have designed backend applications for high-volume workloads and worked across the database, messaging and infrastructure choices that shape distributed systems. I’m drawn to the role’s high-throughput microservices and low-latency REST and gRPC APIs, as well as its practical resilience work around circuit breakers, rate limiters and fail-safes. I would bring a careful approach to failure modes rather than assume a happy path.
+      </p>
+      <p>
+        I also built <a href="https://thefirstspine.fr">The First Spine</a>, a solo-developed board game project, using NestJS, Docker and Ansible. It is a small example of my preference for owning a system end to end, from architecture to a working product. The chance to apply that ownership to Acme’s unusual mix of software and physical systems, while helping replace a legacy platform, is what makes this role particularly interesting to me.
+      </p>
+    </section>
+
+    <footer class="signature">
+      <p>Best,</p>
+      <p class="signature__name">Teddy Gandon</p>
+    </footer>
+  </main>
+</body>
+</html>
