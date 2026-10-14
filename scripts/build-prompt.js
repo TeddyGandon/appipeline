@@ -9,7 +9,7 @@
 // follows the "Job offer" issue form: "Company", "Job title" and "Job description" headings, each
 // followed by its value. The optional PORTFOLIO_SITEMAP environment variable fills the
 // [PORTFOLIO SITEMAP] placeholder; without it, the paragraphs that mention it are left out.
-import { readFileSync } from 'node:fs';
+import { text } from 'node:stream/consumers';
 import { PromptError, buildPrompt } from './lib/prompt.js';
 
 const name = process.argv[2];
@@ -19,7 +19,9 @@ if (!name) {
 }
 
 try {
-  const body = process.env.ISSUE_BODY ?? (process.stdin.isTTY ? '' : readFileSync(0, 'utf8'));
+  // Read stdin as a stream: readFileSync(0) fails with EAGAIN when the pipe is non-blocking, as
+  // it is when fed by gh.
+  const body = process.env.ISSUE_BODY ?? (process.stdin.isTTY ? '' : await text(process.stdin));
   process.stdout.write(`${buildPrompt(name, body, process.env.PORTFOLIO_SITEMAP?.trim())}\n`);
 } catch (error) {
   if (!(error instanceof PromptError)) throw error;
