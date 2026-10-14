@@ -1,0 +1,13 @@
+node_modules/
+
+# Local exports: in CI, the job offer workflow commits the PDFs of the generated documents.
+/resume/template.pdf
+
+# Personal resumes kept out of the repository (resume/my-*.pdf.html).
+/resume/my-*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
