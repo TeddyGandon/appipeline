@@ -1,0 +1,42 @@
+{
+  "name": "appipeline",
+  "version": "0.1.0",
+  "description": "Turn a job offer into a tailored resume, cover letter and application email with an AI coding agent, right from a GitHub issue.",
+  "keywords": [
+    "resume",
+    "cv",
+    "cover-letter",
+    "job-application",
+    "job-search",
+    "github-actions",
+    "ai",
+    "copilot",
+    "claude-code",
+    "pdf"
+  ],
+  "license": "MIT",
+  "author": "Teddy Gandon",
+  "homepage": "https://github.com/teddygandon/appipeline#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teddygandon/appipeline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/teddygandon/appipeline/issues"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build-prompt": "node scripts/build-prompt.js",
+    "export-pdf": "node scripts/export-pdf.js",
+    "test": "node --test",
+    "test:spelling": "cspell --no-progress --gitignore"
+  },
+  "devDependencies": {
+    "cspell": "^9.8.0",
+    "puppeteer": "^25.13.0"
+  }
+}

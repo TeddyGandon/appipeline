@@ -1,0 +1,30 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "en",
+  "files": [
+    "**/*.md",
+    "**/*.html",
+    "**/*.js",
+    "**/*.yml"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "package-lock.json",
+    "README.md",
+    "resume/fonts"
+  ],
+  "ignoreRegExpList": [
+    "/https?:\\/\\/\\S+/g"
+  ],
+  "words": [
+    "Appipeline",
+    "Brightline",
+    "Garamond",
+    "networkidle",
+    "Northwind",
+    "oldstyle",
+    "tailorable",
+    "Trailmark"
+  ]
+}
