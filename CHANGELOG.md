@@ -4,22 +4,18 @@ All notable changes to this project are documented in this file. The format foll
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.0] - 2026-10-14
 
-## [0.1.0] - 2026-10-14
+A first release of Appipeline: turn a job offer into a tailored resume, cover letter, and application email, with documents generated from a GitHub issue.
 
-First public release.
+### Features and fixes
 
-### Added
+- Added a one-page resume template and prompts for generating tailored application documents.
+- Added GitHub issue forms and a workflow to generate, export, commit, and link documents.
+- Added scripts for building prompts and exporting HTML documents to PDF, including a strict one-page check.
+- Added CI checks, Dependabot configuration, and a Node.js 22 version pin.
+- Fixed prompt generation from piped input by reading stdin as a stream.
 
-- One-page A4 resume template with a tailoring guide for AI agents, and a fictional sample candidate.
-- Prompt templates for a tailored resume, a cover letter and an application email (`prompts/`).
-- `Job offer` issue form and workflow: generates, exports and commits the documents of a job
-  offer with GitHub Copilot CLI.
-- `build-prompt` script: fills a prompt template with the fields of a job offer issue.
-- `export-pdf` script: exports a `*.pdf.html` page to PDF, with a `--strict` one-page check.
-- Optional `PORTFOLIO_SITEMAP` and `COPILOT_MODEL` repository variables.
-- Unit tests, spelling check and CI workflow.
+### Contributors
 
-[Unreleased]: https://github.com/teddygandon/appipeline/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/teddygandon/appipeline/releases/tag/v0.1.0
+- Teddy Gando
