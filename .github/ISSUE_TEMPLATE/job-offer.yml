@@ -1,0 +1,31 @@
+name: Job offer
+description: Generate a tailored resume, cover letter and application email for a job offer (repository owner only).
+title: "Job offer: <company> - <job title>"
+labels: [resume, cover-letter, email]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Each label generates one document: `resume`, `cover-letter` and `email`.
+        Remove the labels of the documents you do not need before submitting.
+  - type: input
+    id: company
+    attributes:
+      label: Company
+      placeholder: Acme
+    validations:
+      required: true
+  - type: input
+    id: job-title
+    attributes:
+      label: Job title
+      placeholder: Senior Backend Engineer
+    validations:
+      required: true
+  - type: textarea
+    id: job-description
+    attributes:
+      label: Job description
+      description: Paste the full job offer, including the requirements and the company presentation.
+    validations:
+      required: true

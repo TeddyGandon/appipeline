@@ -1,0 +1,181 @@
+# Generates the application documents of a job offer from an issue opened with the "Job offer"
+# issue form, one per label: "resume", "cover-letter" and "email". One run per issue, with one job
+# per document.
+#
+# For each document, GitHub Copilot CLI runs the prompt template from prompts/, filled with the
+# issue fields, and creates one new file in the document's directory. The file (and its PDF
+# export, if any) is committed and linked on the issue.
+#
+# Triggers: opening the issue, or "Run workflow" with an issue number, to regenerate its documents
+# or to generate the ones of labels added after the issue was opened.
+#
+# Configuration (Settings > Secrets and variables > Actions):
+#   COPILOT_GITHUB_TOKEN  secret, required: a fine-grained personal access token with the
+#                         "Copilot Requests" permission, from an account with a Copilot plan.
+#   PORTFOLIO_SITEMAP     variable, optional: URL of your portfolio sitemap, linked from the
+#                         cover letter and the email.
+#   COPILOT_MODEL         variable, optional: the model Copilot CLI uses (its default otherwise).
+name: Job offer
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: Number of the job offer issue (its labels select the documents)
+        type: number
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: job-offer-${{ github.event.issue.number || inputs.issue }}
+
+jobs:
+  prepare:
+    # Copilot runs with every tool allowed on content from the issue: only the repository owner
+    # may trigger it. See SECURITY.md.
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    outputs:
+      issue: ${{ steps.documents.outputs.issue }}
+      documents: ${{ steps.documents.outputs.documents }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      # label: issue label; document: name in messages; prompt: template in prompts/;
+      # directory/extension: where Copilot creates the document; pdf: export the *.pdf.html page.
+      DOCUMENTS: >-
+        [
+          {"label": "resume", "document": "resume", "prompt": "resume",
+           "directory": "resume", "extension": ".pdf.html", "pdf": true},
+          {"label": "cover-letter", "document": "cover letter", "prompt": "cover-letter",
+           "directory": "cover-letter", "extension": ".pdf.html", "pdf": true},
+          {"label": "email", "document": "email", "prompt": "email",
+           "directory": "email", "extension": ".md", "pdf": false}
+        ]
+    steps:
+      - name: Select the documents from the issue labels
+        id: documents
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue }}
+        run: |
+          labels="$(gh issue view "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '[.labels[].name]')"
+          documents="$(jq --compact-output --argjson labels "$labels" \
+            '[.[] | select(.label as $label | $labels | index($label))]' <<< "$DOCUMENTS")"
+          echo "Issue #$ISSUE_NUMBER, labels $labels: documents $documents"
+          echo "issue=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "documents=$documents" >> "$GITHUB_OUTPUT"
+
+  document:
+    needs: prepare
+    if: needs.prepare.outputs.documents != '[]'
+    name: ${{ matrix.document }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.documents) }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ needs.prepare.outputs.issue }}
+      DOCUMENT: ${{ matrix.document }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        env:
+          PDF: ${{ matrix.pdf }}
+        run: |
+          npm install --global @github/copilot
+          if [ "$PDF" = 'true' ]; then
+            npm ci
+            # Ubuntu 24.04 blocks the unprivileged user namespaces of Chrome's sandbox.
+            echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+          fi
+
+      - name: Build the prompt from the issue
+        env:
+          PROMPT: ${{ matrix.prompt }}
+          PORTFOLIO_SITEMAP: ${{ vars.PORTFOLIO_SITEMAP }}
+        run: |
+          gh issue view "$ISSUE_NUMBER" --json body --jq .body \
+            | node scripts/build-prompt.js "$PROMPT" > "$RUNNER_TEMP/prompt.txt"
+
+      - name: Write the ${{ matrix.document }} with Copilot
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          COPILOT_MODEL: ${{ vars.COPILOT_MODEL }}
+        run: |
+          copilot --prompt "$(cat "$RUNNER_TEMP/prompt.txt")" \
+            ${COPILOT_MODEL:+--model "$COPILOT_MODEL"} \
+            --allow-all-tools \
+            --deny-tool 'shell(git push)' \
+            --deny-tool 'shell(git commit)'
+
+      - name: Find the new ${{ matrix.document }}
+        id: find
+        env:
+          DIRECTORY: ${{ matrix.directory }}
+          EXTENSION: ${{ matrix.extension }}
+        run: |
+          mapfile -t files < <(git ls-files --others --exclude-standard -- "$DIRECTORY/*$EXTENSION")
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::Expected one new $DOCUMENT in $DIRECTORY/, found ${#files[@]}: ${files[*]}"
+            exit 1
+          fi
+          echo "file=${files[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Export the ${{ matrix.document }} to PDF
+        id: export
+        if: matrix.pdf
+        env:
+          FILE: ${{ steps.find.outputs.file }}
+        run: |
+          npm run export-pdf -- "$FILE" 2>&1 | tee "$RUNNER_TEMP/export.log"
+          echo "pdf=${FILE%.pdf.html}.pdf" >> "$GITHUB_OUTPUT"
+
+      - name: Commit the ${{ matrix.document }}
+        env:
+          FILE: ${{ steps.find.outputs.file }}
+          PDF: ${{ steps.export.outputs.pdf }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898299+github-actions[bot]@users.noreply.github.com'
+          git add "$FILE" ${PDF:+"$PDF"}
+          title="$(gh issue view "$ISSUE_NUMBER" --json title --jq .title)"
+          # "Refs", not "Closes": the other documents of the job offer may still be generating.
+          git commit --message "Add $DOCUMENT $(basename "$FILE")" --message "$title" --message "Refs #$ISSUE_NUMBER"
+          # The other document jobs push in parallel: rebase on their commits and retry.
+          tries=0
+          until git pull --rebase && git push; do
+            (( ++tries < 5 )) || exit 1
+            sleep $(( RANDOM % 10 + 1 ))
+          done
+
+      - name: Report on the issue
+        env:
+          FILE: ${{ steps.find.outputs.file }}
+          PDF: ${{ steps.export.outputs.pdf }}
+        run: |
+          nl=$'\n'
+          base="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/$(git rev-parse HEAD)"
+          if [ -n "$PDF" ]; then
+            warning="$(grep --only-matching 'warning, .*' "$RUNNER_TEMP/export.log" || true)"
+            body="${DOCUMENT^} generated: [$(basename "$PDF")]($base/$PDF) ([HTML source]($base/$FILE)).${warning:+$nl$nl⚠️ $warning}"
+          else
+            body="${DOCUMENT^} generated: [$(basename "$FILE")]($base/$FILE)$nl$nl$(cat "$FILE")"
+          fi
+          gh issue comment "$ISSUE_NUMBER" --body "$body"
+
+      - name: Report the failure on the issue
+        if: failure()
+        run: gh issue comment "$ISSUE_NUMBER" --body "${DOCUMENT^} generation failed, see [the workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."

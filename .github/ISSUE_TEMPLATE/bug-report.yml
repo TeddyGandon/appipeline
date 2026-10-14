@@ -1,0 +1,31 @@
+name: Bug report
+description: Something in Appipeline does not work as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `npm run export-pdf -- ...`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Command output or a link to the failed workflow run. Remove any personal data first.
+      render: text
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Node.js 22, Windows 11 / GitHub Actions ubuntu-latest
